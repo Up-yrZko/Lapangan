@@ -1,0 +1,112 @@
+<%- include('../partials/header') %>
+
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2><i class="bi bi-bookmark-check"></i> Dashboard Booking Saya</h2>
+      <p class="text-muted">Kelola dan pantau semua booking Anda di sini</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <a href="/fields" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Booking Baru
+      </a>
+    </div>
+  </div>
+
+  <% if (bookings && bookings.length > 0) { %>
+    <div class="row">
+      <% bookings.forEach(booking => { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-pin-map"></i>
+                  <%= booking.Field.name %>
+                </h5>
+                <% if (booking.status === 'Pending') { %>
+                  <span class="badge bg-warning text-dark">Menunggu</span>
+                <% } else if (booking.status === 'Approved') { %>
+                  <span class="badge bg-success">Disetujui</span>
+                <% } else { %>
+                  <span class="badge bg-danger">Ditolak</span>
+                <% } %>
+              </div>
+
+              <hr>
+
+              <div class="small text-muted">
+                <p class="mb-2">
+                  <i class="bi bi-calendar3"></i>
+                  <strong>Tanggal:</strong> <%= new Date(booking.booking_date).toLocaleDateString('id-ID') %>
+                </p>
+                <p class="mb-2">
+                  <i class="bi bi-clock"></i>
+                  <strong>Jam:</strong> <%= booking.start_time %> - <%= booking.end_time %>
+                </p>
+                <p class="mb-2">
+                  <i class="bi bi-geo-alt"></i>
+                  <strong>Lokasi:</strong> <%= booking.Field.location || '-' %>
+                </p>
+                <p class="mb-0">
+                  <i class="bi bi-tag"></i>
+                  <strong>Harga:</strong> Rp <%= Number(booking.Field.price).toLocaleString('id-ID') %> / Jam
+                </p>
+              </div>
+
+              <% if (booking.note) { %>
+                <hr>
+                <p class="small text-muted mb-0">
+                  <strong>Catatan:</strong> <%= booking.note %>
+                </p>
+              <% } %>
+            </div>
+            <div class="card-footer bg-transparent">
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i>
+                ID Booking: #<%= booking.id %>
+              </small>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 3rem;" class="text-muted"></i>
+        <h5 class="mt-3">Belum Ada Booking</h5>
+        <p class="text-muted">Anda belum membuat booking apapun. Mulai dengan memesan lapangan favorit Anda.</p>
+        <a href="/fields" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Buat Booking Sekarang
+        </a>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="mt-5 p-4 bg-light rounded">
+    <h5><i class="bi bi-lightbulb"></i> Status Booking</h5>
+    <div class="row mt-3">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <span class="badge bg-warning text-dark me-2" style="width: 20px; height: 20px;"></span>
+          <span><strong>Menunggu</strong> - Espera persetujuan admin</span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <span class="badge bg-success me-2" style="width: 20px; height: 20px;"></span>
+          <span><strong>Disetujui</strong> - Booking Anda telah dikonfirmasi</span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <span class="badge bg-danger me-2" style="width: 20px; height: 20px;"></span>
+          <span><strong>Ditolak</strong> - Booking tidak dapat disetujui</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

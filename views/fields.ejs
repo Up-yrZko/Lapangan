@@ -1,0 +1,72 @@
+<%- include('partials/header') %>
+
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2><i class="bi bi-list"></i> Daftar Lapangan Tersedia</h2>
+    </div>
+    <% if (user && user.role === 'user') { %>
+      <div class="col-md-4 text-end">
+        <a href="/user/dashboard" class="btn btn-info">
+          <i class="bi bi-bookmark-check"></i> Lihat Booking Saya
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (fields && fields.length > 0) { %>
+    <div class="row g-4">
+      <% fields.forEach(field => { %>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title"><%= field.name %></h5>
+                <% if (field.status === 'available') { %>
+                  <span class="badge bg-success">Tersedia</span>
+                <% } else { %>
+                  <span class="badge bg-danger">Tidak Tersedia</span>
+                <% } %>
+              </div>
+
+              <% if (field.description) { %>
+                <p class="card-text text-muted small"><%= field.description %></p>
+              <% } %>
+
+              <% if (field.location) { %>
+                <p class="mb-2">
+                  <i class="bi bi-geo-alt"></i>
+                  <span class="text-muted"><%= field.location %></span>
+                </p>
+              <% } %>
+
+              <h4 class="text-primary mb-3">
+                Rp <%= Number(field.price).toLocaleString('id-ID') %> / Jam
+              </h4>
+
+              <% if (user && user.role === 'user') { %>
+                <a href="/booking/<%= field.id %>" class="btn btn-primary w-100">
+                  <i class="bi bi-calendar-plus"></i> Booking Sekarang
+                </a>
+              <% } else if (!user) { %>
+                <a href="/auth/login" class="btn btn-warning w-100">
+                  <i class="bi bi-box-arrow-in-right"></i> Login Untuk Booking
+                </a>
+              <% } else { %>
+                <button class="btn btn-secondary w-100" disabled>
+                  Admin tidak bisa booking
+                </button>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info" role="alert">
+      <i class="bi bi-info-circle"></i> Belum ada lapangan yang tersedia.
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>
