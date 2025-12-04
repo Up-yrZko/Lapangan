@@ -42,7 +42,7 @@ const Booking = sequelize.define('Booking', {
   timestamps: false
 });
 
-Booking.belongsTo(User, { foreignKey: 'user_id' });
-Booking.belongsTo(Field, { foreignKey: 'field_id' });
+Booking.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+Booking.belongsTo(Field, { foreignKey: 'field_id', onDelete: 'CASCADE' });
 
 module.exports = Booking;

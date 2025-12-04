@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const path = require('path');
 const sequelize = require('./config/database');
 
@@ -29,18 +30,38 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session
+// Session configuration with file store
+const sessionStore = new FileStore({
+  path: path.join(__dirname, 'sessions'),
+  ttl: 24 * 60 * 60  // 24 hours
+});
+
 app.use(
   session({
+    store: sessionStore,
     secret: process.env.SESSION_SECRET || 'secret123',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: { 
+      secure: false,  // Set to true if using HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000  // 24 hours in milliseconds
+    }
   })
 );
 
 // Middleware untuk pass user ke semua view
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
+  next();
+});
+
+// Simple flash messages (store in session)
+app.use((req, res, next) => {
+  res.locals.message = req.session.message || null;
+  res.locals.error = req.session.error || null;
+  delete req.session.message;
+  delete req.session.error;
   next();
 });
 
@@ -58,10 +79,12 @@ app.use((req, res) => {
 });
 
 // Sync database
-sequelize.sync({ alter: true }).then(() => {
+// Gunakan force: true hanya untuk development pertama kali
+const syncOptions = process.env.DB_FORCE_SYNC === 'true' ? { force: true } : { alter: false };
+sequelize.sync(syncOptions).then(() => {
   console.log('Database synced successfully');
 }).catch(err => {
-  console.error('Database sync error:', err);
+  console.error('Database sync error:', err.message);
 });
 
 // Start server

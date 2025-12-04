@@ -42,9 +42,16 @@
                 <input 
                   type="time" 
                   name="start_time" 
+                  id="start_time"
                   class="form-control" 
                   required 
                 />
+                <div id="conflictStart" class="mt-2" style="display:none;">
+                  <small class="text-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <strong>⚠️ Jam ini tidak tersedia!</strong>
+                  </small>
+                </div>
               </div>
 
               <div class="col-md-6 mb-3">
@@ -52,9 +59,16 @@
                 <input 
                   type="time" 
                   name="end_time" 
+                  id="end_time"
                   class="form-control" 
                   required 
                 />
+                <div id="conflictEnd" class="mt-2" style="display:none;">
+                  <small class="text-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <strong>⚠️ Jam ini tidak tersedia!</strong>
+                  </small>
+                </div>
               </div>
             </div>
 
@@ -83,11 +97,112 @@
           <div class="alert alert-warning">
             <strong><i class="bi bi-lightbulb"></i> Informasi Penting:</strong>
             <ul class="mb-0 mt-2 small">
+              <li><strong>Sistem Validasi Otomatis:</strong> Jika ada booking lain di jam yang sama untuk tanggal yang dipilih, booking Anda akan ditolak</li>
               <li>Booking akan diproses dengan status "Pending" menunggu persetujuan admin</li>
-              <li>Sistem akan mengecek ketersediaan jadwal secara otomatis</li>
               <li>Lihat status booking Anda di Dashboard</li>
+              <li>Pastikan jam mulai lebih kecil dari jam selesai</li>
             </ul>
           </div>
+
+          <% if (bookings && bookings.length > 0) { %>
+            <div class="alert alert-info mt-4">
+              <strong><i class="bi bi-calendar-check"></i> Jadwal Terisi:</strong>
+              <div class="mt-3">
+                <% bookings.forEach(booking => { %>
+                  <div class="mb-2 p-2 bg-light rounded border-start border-danger">
+                    <strong><%= booking.booking_date %></strong>
+                    <span class="text-danger">
+                      <i class="bi bi-x-circle"></i> 
+                      <%= booking.start_time %> - <%= booking.end_time %>
+                    </span>
+                    <span class="badge bg-secondary ms-2"><%= booking.status %></span>
+                  </div>
+                <% }); %>
+              </div>
+            </div>
+          <% } %>
+
+          <script>
+            // Data booking dari server
+            const bookingsData = <%- JSON.stringify(bookings || []) %>;
+
+            function timeToMinutes(timeStr) {
+              if (!timeStr) return null;
+              const [h, m] = timeStr.split(':').map(Number);
+              return h * 60 + m;
+            }
+
+            function hasConflict(date, startTime, endTime) {
+              const startMinutes = timeToMinutes(startTime);
+              const endMinutes = timeToMinutes(endTime);
+              
+              if (startMinutes === null || endMinutes === null) return false;
+
+              return bookingsData.some(booking => {
+                // Check if date matches
+                if (booking.booking_date !== date) return false;
+                
+                const bookingStart = timeToMinutes(booking.start_time);
+                const bookingEnd = timeToMinutes(booking.end_time);
+                
+                // Check for time overlap
+                return startMinutes < bookingEnd && endMinutes > bookingStart;
+              });
+            }
+
+            // Validasi real-time jam
+            const startInput = document.getElementById('start_time');
+            const endInput = document.getElementById('end_time');
+            const dateInput = document.querySelector('input[name="booking_date"]');
+            const conflictStartDiv = document.getElementById('conflictStart');
+            const conflictEndDiv = document.getElementById('conflictEnd');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            function updateConflictStatus() {
+              const date = dateInput.value;
+              const startTime = startInput.value;
+              const endTime = endInput.value;
+
+              if (!date || !startTime || !endTime) return;
+
+              const hasConflictStatus = hasConflict(date, startTime, endTime);
+              
+              if (hasConflictStatus) {
+                conflictStartDiv.style.display = 'block';
+                conflictEndDiv.style.display = 'block';
+                startInput.classList.add('is-invalid');
+                endInput.classList.add('is-invalid');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50');
+              } else {
+                conflictStartDiv.style.display = 'none';
+                conflictEndDiv.style.display = 'none';
+                startInput.classList.remove('is-invalid');
+                endInput.classList.remove('is-invalid');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+              }
+            }
+
+            dateInput.addEventListener('change', updateConflictStatus);
+            startInput.addEventListener('change', function() {
+              const endTime = endInput.value;
+              if (this.value && endTime && this.value >= endTime) {
+                alert('⚠️ Jam mulai harus lebih kecil dari jam selesai!');
+                this.value = '';
+              }
+              updateConflictStatus();
+            });
+
+            endInput.addEventListener('change', function() {
+              const startTime = startInput.value;
+              if (startTime && this.value && startTime >= this.value) {
+                alert('⚠️ Jam selesai harus lebih besar dari jam mulai!');
+                this.value = '';
+              }
+              updateConflictStatus();
+            });
+          </script>
         </div>
       </div>
     </div>

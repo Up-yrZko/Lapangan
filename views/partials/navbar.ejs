@@ -1,62 +1,61 @@
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <i class="bi bi-calendar2-check"></i> Booking Lapangan
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <i class="bi bi-calendar2-check me-2"></i>
+      <span>Booking Lapangan</span>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/fields"><i class="bi bi-list"></i> Lapangan</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center">
         <% if (!user) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/fields">
-              <i class="bi bi-list"></i> Lapangan
-            </a>
+          <li class="nav-item me-2">
+            <a class="btn btn-outline-light btn-sm" href="/auth/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/auth/login">
-              <i class="bi bi-box-arrow-in-right"></i> Login
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/auth/register">
-              <i class="bi bi-person-plus"></i> Register
-            </a>
+            <a class="btn btn-light btn-sm" href="/auth/register"><i class="bi bi-person-plus"></i> Register</a>
           </li>
         <% } else { %>
           <% if (user.role === 'admin') { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/fields/">
-                <i class="bi bi-list"></i> Lapangan
-              </a>
+            <li class="nav-item d-none d-lg-block me-2">
+              <a class="nav-link text-white" href="/admin/fields"><i class="bi bi-gear"></i> Kelola</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/fields">
-                <i class="bi bi-gear"></i> Kelola Lapangan
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/dashboard">
-                <i class="bi bi-speedometer2"></i> Dashboard
-              </a>
+            <li class="nav-item d-none d-lg-block me-2">
+              <a class="nav-link text-white" href="/admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
             </li>
           <% } else { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/fields/">
-                <i class="bi bi-list"></i> Lapangan
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/user/dashboard">
-                <i class="bi bi-bookmark-check"></i> Booking Saya
-              </a>
+            <li class="nav-item d-none d-lg-block me-2">
+              <a class="nav-link text-white" href="/user/dashboard"><i class="bi bi-bookmark-check"></i> Booking Saya</a>
             </li>
           <% } %>
-          <li class="nav-item">
-            <a class="nav-link" href="/auth/logout">
-              <i class="bi bi-box-arrow-right"></i> Logout (<strong><%= user.username %></strong>)
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1" style="font-size: 1.2rem"></i>
+              <strong class="text-white"><%= user.username %></strong>
             </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+              <% if (user.role === 'admin') { %>
+                <li><a class="dropdown-item" href="/admin/fields"><i class="bi bi-gear me-2"></i> Kelola Lapangan</a></li>
+                <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+              <% } %>
+              <li><a class="dropdown-item" href="/fields"><i class="bi bi-list me-2"></i> Lihat Lapangan</a></li>
+              <li>
+                <form action="/auth/logout" method="GET" class="m-0">
+                  <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</button>
+                </form>
+              </li>
+            </ul>
           </li>
         <% } %>
       </ul>

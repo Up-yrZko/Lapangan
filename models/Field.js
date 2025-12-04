@@ -26,6 +26,10 @@ const Field = sequelize.define('Field', {
   status: {
     type: DataTypes.ENUM('available', 'unavailable'),
     defaultValue: 'available'
+  },
+  photo: {
+    type: DataTypes.STRING(255),
+    allowNull: true
   }
 }, {
   tableName: 'fields',
